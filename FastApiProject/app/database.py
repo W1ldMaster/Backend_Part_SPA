@@ -1,18 +1,19 @@
+import os
 from pathlib import Path
 
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 from sqlalchemy.orm import DeclarativeBase
 
-# Абсолютный путь к БД рядом с папкой app/
-BASE_DIR = Path(__file__).resolve().parent.parent   # ...\Backend\FastApiProject
-DB_PATH = BASE_DIR / "db.sqlite3"
 
-SQLALCHEMY_DATABASE_URL = f"sqlite+aiosqlite:///{DB_PATH.as_posix()}"
+DEFAULT_DB = Path(__file__).resolve().parent.parent / "db.sqlite3"
+DB_PATH = os.getenv("DB_PATH", str(DEFAULT_DB))
+
+SQLALCHEMY_DATABASE_URL = f"sqlite+aiosqlite:///{DB_PATH}"
 
 engine = create_async_engine(
     SQLALCHEMY_DATABASE_URL,
     echo=False,
-    connect_args={"timeout": 5},   # вместо вечного зависания — "database is locked"
+    connect_args={"timeout": 5},
 )
 
 async_session_maker = async_sessionmaker(engine, expire_on_commit=False)

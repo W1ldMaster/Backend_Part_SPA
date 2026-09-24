@@ -1,15 +1,14 @@
 from fastapi import APIRouter
 from app.core.auth import fastapi_users, auth_backend
 from app.models import User
-from app.schemas import UserRead, UserCreate 
-
+from app.schemas import UserRead, UserCreate, UserUpdate
 router = APIRouter()
 
-# Эндпоинты аутентификации
+
 router.include_router(
-    fastapi_users.get_auth_router(auth_backend),  # /auth/jwt/login, /logout
-    prefix="/auth/jwt",
-    tags=["auth"]
+    fastapi_users.get_users_router(UserRead, UserUpdate),   # ✅
+    prefix="/users",
+    tags=["users"]
 )
 
 # Регистрация

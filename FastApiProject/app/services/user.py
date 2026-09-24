@@ -1,10 +1,11 @@
-from typing import Dict, Any
+from typing import Optional
+
+from fastapi_pagination import Params
 
 from app.repositories.user import UserRepository
-from app.schemas import ProfileResponse, UserRead, PostList
+from app.schemas import ProfileResponse, UserRead
 from app.exceptions import UserNotFoundError, CannotFollowSelfError
 from app.models import User
-from fastapi_pagination import Params
 
 
 class UserService:
@@ -12,10 +13,10 @@ class UserService:
         self.user_repo = user_repo
 
     async def get_profile(
-            self,
-            target_username: str,
-            current_user: User,
-            params: Params,
+        self,
+        target_username: str,
+        current_user: User,
+        params: Params,
     ) -> ProfileResponse:
         author = await self.user_repo.get_by_username(target_username)
         if not author:
@@ -41,7 +42,7 @@ class UserService:
         is_following = await self.user_repo.is_following(current_user.id, author.id)
         if not is_following:
             await self.user_repo.add_follow(current_user.id, author.id)
-            
+
         return {"status": "following"}
 
     async def unfollow_user(self, current_user: User, target_username: str) -> dict:

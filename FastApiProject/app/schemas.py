@@ -22,6 +22,12 @@ class UserShort(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 
+class UserUpdate(schemas.BaseUserUpdate):
+    username: Optional[str] = None
+    email: Optional[EmailStr] = None
+    password: Optional[str] = None
+
+
 class GroupRead(BaseModel):
     id: int
     title: str
