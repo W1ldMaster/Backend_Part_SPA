@@ -7,9 +7,6 @@ from app.database import Base
 class User(SQLAlchemyBaseUserTable[int], Base):
     __tablename__ = "users"
 
-    # email: str (unique), hashed_password: str,
-    # is_active: bool, is_superuser: bool, is_verified: bool
-
     id = Column(Integer, primary_key=True, index=True)
     username = Column(String(50), unique=True, index=True, nullable=False, default='first')
 

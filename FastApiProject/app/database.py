@@ -1,22 +1,31 @@
 import os
-from pathlib import Path
 
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 from sqlalchemy.orm import DeclarativeBase
 
 
-DEFAULT_DB = Path(__file__).resolve().parent.parent / "db.sqlite3"
-DB_PATH = os.getenv("DB_PATH", str(DEFAULT_DB))
+DATABASE_URL = os.getenv("DATABASE_URL")
 
-SQLALCHEMY_DATABASE_URL = f"sqlite+aiosqlite:///{DB_PATH}"
+if not DATABASE_URL:
+    raise RuntimeError("DATABASE_URL is not set. Check docker-compose.yml or .env")
+
 
 engine = create_async_engine(
-    SQLALCHEMY_DATABASE_URL,
-    echo=False,
-    connect_args={"timeout": 5},
+    DATABASE_URL,
+    echo=os.getenv("SQL_ECHO", "false").lower() == "true",
+    pool_size=int(os.getenv("DB_POOL_SIZE", "10")),
+    max_overflow=int(os.getenv("DB_MAX_OVERFLOW", "20")),
+    pool_timeout=int(os.getenv("DB_POOL_TIMEOUT", "30")),
+    pool_recycle=int(os.getenv("DB_POOL_RECYCLE", "1800")),
+    pool_pre_ping=True,
 )
 
-async_session_maker = async_sessionmaker(engine, expire_on_commit=False)
+async_session_maker = async_sessionmaker(
+    engine,
+    class_=AsyncSession,
+    expire_on_commit=False,
+    autoflush=False,
+)
 
 
 class Base(DeclarativeBase):
@@ -25,4 +34,10 @@ class Base(DeclarativeBase):
 
 async def get_db():
     async with async_session_maker() as session:
-        yield session
+        try:
+            yield session
+        except Exception:
+            await session.rollback()
+            raise
+        finally:
+            await session.close()
