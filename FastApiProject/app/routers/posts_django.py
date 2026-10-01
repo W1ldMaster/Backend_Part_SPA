@@ -1,18 +1,18 @@
 from typing import Optional
+
+from app.core.auth import current_active_user
+from app.core.utility import handle_domain_exception
+from app.dependencies import (get_group_service, get_post_service,
+                              get_user_service)
+from app.models import User
+from app.schemas import (CommentCreate, CommentRead, GroupCreate,
+                         GroupPostsResponse, GroupRead, PostCreate,
+                         PostDetailResponse, PostList, ProfileResponse)
+from app.services.group import GroupService
+from app.services.post import PostService
+from app.services.user import UserService
 from fastapi import APIRouter, Depends, Query
 from fastapi_pagination import Page, Params
-
-from app.models import User
-from app.schemas import (
-    PostList, PostCreate, PostDetailResponse, CommentCreate, CommentRead,
-    GroupRead, GroupCreate, ProfileResponse, GroupPostsResponse
-)
-from app.core.auth import current_active_user
-from app.services.post import PostService
-from app.services.group import GroupService
-from app.services.user import UserService
-from app.dependencies import get_post_service, get_group_service, get_user_service
-from app.core.utility import handle_domain_exception
 
 router = APIRouter(tags=["posts"])
 
@@ -187,4 +187,7 @@ async def delete_post(
         return await service.delete_post(current_user=current_user, post_id=post_id)
     except Exception as e:
         handle_domain_exception(e)
+
+
+
 

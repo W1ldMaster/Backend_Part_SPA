@@ -1,19 +1,16 @@
 from typing import Optional
 
-from sqlalchemy import select, desc, func
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import joinedload, selectinload
+from app.models import Comment, Follow, Post, User
 from fastapi_pagination import Page, Params
 from fastapi_pagination.ext.sqlalchemy import paginate
-
-from app.models import Post, Comment, Follow, User
+from sqlalchemy import desc, func, select
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import joinedload, selectinload
 
 
 class PostRepository:
     def __init__(self, session: AsyncSession):
         self.session = session
-
-    # ---------- Feed ----------
 
     async def get_feed(self, q: Optional[str]) -> Page:
         stmt = (
@@ -53,8 +50,6 @@ class PostRepository:
         )
         return await paginate(self.session, stmt, params=params)
 
-    # ---------- Single post ----------
-
     async def get_by_id(self, post_id: int) -> Optional[Post]:
         stmt = select(Post).where(Post.id == post_id)
         return await self.session.scalar(stmt)
@@ -71,8 +66,6 @@ class PostRepository:
         )
         return await self.session.scalar(stmt)
 
-    # ---------- Mutations ----------
-
     async def create(
         self,
         author_id: int,
@@ -84,7 +77,6 @@ class PostRepository:
         self.session.add(post)
         await self.session.commit()
 
-        # Перезагружаем с подгруженными author и group — иначе Pydantic упадёт с MissingGreenlet
         stmt = (
             select(Post)
             .options(
@@ -117,8 +109,6 @@ class PostRepository:
     async def get_author_post_count(self, author_id: int) -> int:
         stmt = select(func.count(Post.id)).where(Post.author_id == author_id)
         return await self.session.scalar(stmt) or 0
-
-    # ---------- Comments ----------
 
     async def add_comment(self, post_id: int, author_id: int, text: str) -> Comment:
         comment = Comment(text=text, post_id=post_id, author_id=author_id)

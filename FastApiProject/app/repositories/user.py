@@ -1,12 +1,11 @@
 from typing import Optional
 
-from sqlalchemy import select, desc, func, delete
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import joinedload
+from app.models import Follow, Post, User
 from fastapi_pagination import Page, Params
 from fastapi_pagination.ext.sqlalchemy import paginate
-
-from app.models import User, Post, Follow
+from sqlalchemy import delete, desc, func, select
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import joinedload
 
 
 class UserRepository:
@@ -52,6 +51,14 @@ class UserRepository:
             delete(Follow).where(
                 Follow.user_id == user_id,
                 Follow.author_id == author_id,
+            )
+        )
+        await self.session.commit()
+
+    async def delete_user(self, user_id: int) -> None:
+        await self.session.execute(
+            delete(User).where(
+                User.id == user_id
             )
         )
         await self.session.commit()

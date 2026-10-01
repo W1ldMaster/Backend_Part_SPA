@@ -1,11 +1,10 @@
 from typing import Optional
 
-from fastapi_pagination import Params
-
+from app.exceptions import CannotFollowSelfError, UserNotFoundError
+from app.models import User
 from app.repositories.user import UserRepository
 from app.schemas import ProfileResponse, UserRead
-from app.exceptions import UserNotFoundError, CannotFollowSelfError
-from app.models import User
+from fastapi_pagination import Params
 
 
 class UserService:
@@ -52,3 +51,9 @@ class UserService:
 
         await self.user_repo.remove_follow(current_user.id, author.id)
         return {"status": "unfollowed"}
+
+    async def delete_user(self, current_user: User):
+        if not current_user:
+            raise UserNotFoundError("Пользователь не найден")
+        await self.user_repo.delete_user(current_user.id)
+

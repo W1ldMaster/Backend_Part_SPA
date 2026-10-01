@@ -1,13 +1,9 @@
 import traceback
-from fastapi import HTTPException
 
-from app.exceptions import (
-    PostNotFoundError,
-    PermissionDeniedError,
-    GroupNotFoundError,
-    UserNotFoundError,
-    CannotFollowSelfError,
-)
+from app.exceptions import (CannotFollowSelfError, GroupNotFoundError,
+                            PermissionDeniedError, PostNotFoundError,
+                            UserNotFoundError)
+from fastapi import HTTPException
 
 
 def handle_domain_exception(e: Exception):

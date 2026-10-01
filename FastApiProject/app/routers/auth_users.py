@@ -1,36 +1,42 @@
-from fastapi import APIRouter
-
-from app.core.auth import fastapi_users, auth_backend
-from app.schemas import UserRead, UserCreate, UserUpdate
+from app.core.auth import auth_backend, current_active_user, fastapi_users
+from app.core.utility import handle_domain_exception
+from app.dependencies import get_user_service
+from app.models import User
+from app.schemas import UserCreate, UserRead, UserUpdate
+from app.services.user import UserService
+from fastapi import APIRouter, Depends
 
 router = APIRouter()
 
-# ==================== 1. АУТЕНТИФИКАЦИЯ ====================
-# /auth/jwt/login, /auth/jwt/logout
 router.include_router(
     fastapi_users.get_auth_router(auth_backend),
     prefix="/auth/jwt",
     tags=["auth"],
 )
 
-# ==================== 2. РЕГИСТРАЦИЯ ====================
-# /auth/register
 router.include_router(
     fastapi_users.get_register_router(UserRead, UserCreate),
     prefix="/auth",
     tags=["auth"],
 )
 
-# ==================== 3. СБРОС ПАРОЛЯ ====================
-# /auth/forgot-password, /auth/reset-password
 router.include_router(
     fastapi_users.get_reset_password_router(),
     prefix="/auth",
     tags=["auth"],
 )
 
-# ==================== 4. УПРАВЛЕНИЕ ПОЛЬЗОВАТЕЛЯМИ ====================
-# /users/me, /users/{id}  ← один раз, с UserUpdate (не UserCreate!)
+
+@router.delete('/users/me', status_code=204)
+async def delete_user(
+    service: UserService = Depends(get_user_service),
+    current_user: User = Depends(current_active_user)
+):
+    try:
+        return await service.delete_user(current_user=current_user)
+    except Exception as e:
+        handle_domain_exception(e)
+
 router.include_router(
     fastapi_users.get_users_router(UserRead, UserUpdate),
     prefix="/users",

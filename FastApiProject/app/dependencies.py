@@ -1,16 +1,12 @@
-from fastapi import Depends
-from sqlalchemy.ext.asyncio import AsyncSession
 from app.database import get_db
-
-
+from app.repositories.group import GroupRepository
 from app.repositories.post import PostRepository
 from app.repositories.user import UserRepository
-from app.repositories.group import GroupRepository
-
-
+from app.services.group import GroupService
 from app.services.post import PostService
 from app.services.user import UserService
-from app.services.group import GroupService
+from fastapi import Depends
+from sqlalchemy.ext.asyncio import AsyncSession
 
 
 def get_post_repo(session: AsyncSession = Depends(get_db)) -> PostRepository:

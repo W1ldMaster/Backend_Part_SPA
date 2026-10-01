@@ -1,20 +1,17 @@
 import asyncio
 from logging.config import fileConfig
 
+import app.models
 from alembic import context
+from app.database import DATABASE_URL, Base
 from sqlalchemy import pool
 from sqlalchemy.ext.asyncio import async_engine_from_config
-
-from app.database import Base, DATABASE_URL
-import app.models  # noqa: F401 — регистрирует все модели в Base.metadata
 
 config = context.config
 
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
-# set_section_option не проходит через configparser-интерполяцию,
-# поэтому безопасен для паролей с '%'
 config.set_section_option(
     config.config_ini_section,
     "sqlalchemy.url",

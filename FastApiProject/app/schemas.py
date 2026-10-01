@@ -1,9 +1,9 @@
 from datetime import datetime
-from typing import Optional, List
+from typing import List, Optional
 
-from pydantic import BaseModel, ConfigDict, EmailStr
 from fastapi_pagination import Page
 from fastapi_users import schemas
+from pydantic import BaseModel, ConfigDict, EmailStr
 
 
 class UserRead(schemas.BaseUser[int]):
@@ -49,7 +49,7 @@ class CommentCreate(BaseModel):
 class CommentRead(CommentCreate):
     id: int
     pub_date: datetime
-    author: Optional[UserRead] = None      # ← было UserRead
+    author: Optional[UserRead] = None
     model_config = ConfigDict(from_attributes=True)
 
 
@@ -61,7 +61,7 @@ class PostList(BaseModel):
     author: UserRead
     author_id: int
     group_id: Optional[int] = None
-    group: Optional[GroupRead] = None    # 👈 добавьте эту строку
+    group: Optional[GroupRead] = None
     model_config = ConfigDict(from_attributes=True)
 
 

@@ -1,6 +1,6 @@
-from app.repositories.group import GroupRepository
-from app.schemas import GroupRead, GroupCreate
 from app.exceptions import GroupNotFoundError
+from app.repositories.group import GroupRepository
+from app.schemas import GroupCreate, GroupRead
 
 
 class GroupService:
