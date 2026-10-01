@@ -1,4 +1,4 @@
-# SSA Backend — FastAPI + PostgreSQL
+# SPA Backend — FastAPI + PostgreSQL
 
 REST API для социальной сети (посты, группы, комментарии, подписки) на FastAPI с асинхронным SQLAlchemy и PostgreSQL. Аутентификация — JWT через `fastapi-users`.
 
