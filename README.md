@@ -56,29 +56,6 @@ FastApiProject/
 └── .env
 ```
 
-## ⚙️ Переменные окружения
-
-Создайте `.env` в корне проекта (по образцу `.env.example`):
-
-```env
-POSTGRES_USER=your_user
-POSTGRES_PASSWORD=your_password
-POSTGRES_DB=your_db
-SECRET_KEY=длинная_случайная_строка_64_символа
-```
-
-- **`POSTGRES_*`** — учётные данные БД. Используются и в `docker-compose.yml`, и в `DATABASE_URL`.
-- **`SECRET_KEY`** — ключ подписи JWT. Сгенерировать:
-  ```bash
-  python -c "import secrets; print(secrets.token_urlsafe(64))"
-  ```
-  ⚠️ **Не коммитьте** `.env` в git. Убедитесь, что он в `.gitignore`.
-
-`DATABASE_URL` собирается автоматически в `docker-compose.yml`:
-```
-postgresql+asyncpg://USER:PASSWORD@db:5432/DB
-```
-
 ## 🚀 Быстрый старт (Docker)
 
 ### 1. Создайте общую сеть (один раз)
@@ -91,7 +68,8 @@ docker network create ssa_net
 
 ### 2. Подготовьте `.env`
 
-Скопируйте `.env.example` → `.env`, заполните значения.
+Создайте файл `.env`.
+Скопируйте `.envexample` → `.env`, заполните значения.
 
 ### 3. Поднимите БД
 
@@ -311,7 +289,6 @@ Authorization: Bearer <access_token>
 
 ## 🔒 Безопасность
 
-- **`SECRET_KEY`** — храните только в `.env`, не коммитьте. При утечке — все JWT можно подделать, нужна ротация.
 - **`.env`** — в `.gitignore`. Есть `.env.example` с плейсхолдерами.
 - **Пароль Postgres** — без спецсимволов (`@`, `:`, `/`, `#`, `%`), иначе URL `DATABASE_URL` сломается. Генерируйте через `secrets.token_urlsafe`.
 - **Порт 5432** — в проде уберите проброс (`ports:`) у `db` или привяжите к `127.0.0.1:5432:5432`.
@@ -361,10 +338,6 @@ docker compose down -v
 **`ModuleNotFoundError: asyncpg.protocol.protocol`** (Python 3.14)
 
 - Используйте Python 3.11–3.13. Либо обновите `asyncpg` до 0.31.0+ — там есть wheels для 3.14.
-
-**`403 Forbidden` на `DELETE /users/me`**
-
-- Убедитесь, что ваш кастомный `@router.delete("/users/me")` зарегистрирован **раньше** `include_router(fastapi_users.get_users_router(...))`. Иначе `DELETE /users/{id}` от fastapi-users перехватит запрос и потребует `is_superuser`.
 
 **`Connection reset` при запросе с хоста**
 
